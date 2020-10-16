@@ -6,4 +6,4 @@ VGG is a convolutional neural network model for image recognition proposed by th
 Here we are implementing the K-means clustering algorithm for clustering the images that have three classes. The classes include Zebra, Lion, and Fish. 
 
 Shared code will use the labels obtained from clustering and will save the test images in the different folders(respective clusters).
-For dataset, please comment your email id.
+Attached images gives a hint of training and test data. If you need the complete dataset, please comment your email id.
