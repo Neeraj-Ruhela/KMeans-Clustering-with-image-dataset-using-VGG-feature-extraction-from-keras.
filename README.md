@@ -1,0 +1,2 @@
+# Knn-Clustering-with-image-dataset-using-VGG-feature-extraction-from-keras.
+Image clustering is an essential data analysis tool in machine learning and computer vision. Many applications such as content-based image annotation and image retrieval can be viewed as different instances of image clustering. Technically, image clustering is the process of grouping images into clusters such that the images within the same clusters are similar to each other, while those in different clusters are dissimilar.
