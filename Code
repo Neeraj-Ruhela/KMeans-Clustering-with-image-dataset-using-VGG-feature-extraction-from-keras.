@@ -1,0 +1,81 @@
+import os
+import numpy as np
+
+#import Kmeans library from sklearn
+from sklearn.cluster import KMeans
+
+#import VGG feature extraction from keras application as VGG16
+from keras.preprocessing import image
+from keras.applications.vgg16 import VGG16
+from keras.applications.vgg16 import preprocess_input
+
+model = VGG16(weights='imagenet', include_top=False)  
+
+#Specify path of the image from the training dataset.  
+import random 
+path=r"C:\dataset\train_dataset"
+files=os.listdir(path)
+img_p=random.choice(files)
+print("Randomly selected image is",img_p)
+img_path=os.path.join(path,img_p)
+
+print("Path of random image: " , img_path) 
+
+img = image.load_img(img_path, target_size=(224, 224)) 
+img_data = image.img_to_array(img)
+img_data = np.expand_dims(img_data, axis=0)
+vgg16_feature = model.predict(img_data)  
+
+#print the shape of the vgg16_feature
+print("The shape of the vgg16_feature: ",vgg16_feature.shape)
+
+# The below function will extract the features from the images.
+def extract_feature(directory):
+    vgg16_feature_list = []
+    for filename in os.listdir(directory):
+        img = image.load_img(os.path.join(directory,filename), target_size=(224, 224))
+        img_data = image.img_to_array(img)
+        
+        img_data = np.expand_dims(img_data, axis=0)
+        img_data = preprocess_input(img_data)
+
+        vgg16_feature = model.predict(img_data)
+        vgg16_feature_np = np.array(vgg16_feature)
+        vgg16_feature_list.append(vgg16_feature_np.flatten())
+
+    vgg16_feature_list_np = np.array(vgg16_feature_list)
+    
+    return vgg16_feature_list_np
+    
+# passing the path of the folder where we have the training dataset
+train_feature_vector = extract_feature(path)  
+
+
+#creating the kmeans object and initialize it with the number_of_clusters = 3
+kmeans_model = KMeans(n_clusters=3)
+kmeans_model.fit(train_feature_vector) 
+
+# creating a test vector using extract_feature function. It will return a feature vector of size number of images * size of the feature vector
+test_vector  = extract_feature(r'''C:\dataset\test_dataset''') 
+
+#print the shape of the test vector
+print("the shape of the test vector is ",test_vector.shape)
+
+# using kmeans model to predict the labels for the test vector
+labels =kmeans_model.predict(test_vector) 
+
+
+# Using the labels and the images, we are saving the test images in the different folders(respective clusters)
+#creating the folders for 3 clusters
+out_path=r'''C:\dataset'''
+os.makedirs(out_path+"/Lion_2",exist_ok=True)
+os.makedirs(out_path+"/Fish_1",exist_ok=True)
+os.makedirs(out_path+"/Zebra_0",exist_ok=True)
+import shutil
+label_ref = 0
+dest_fold_path = {0:out_path+"/Zebra_0",1:out_path+"/Fish_1",2:out_path+"/Lion_2"}
+for filename in os.listdir(r'''C:\dataset\test_dataset'''):
+    source_path = os.path.join(r'''C:\dataset\test_dataset''',filename)
+    destination_path = dest_fold_path.get(labels[label_ref])
+    shutil.copy(source_path, destination_path)
+    label_ref += 1
